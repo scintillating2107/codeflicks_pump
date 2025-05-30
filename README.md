@@ -4,7 +4,7 @@
 <b>Discipline | <b>Chemical Engineering
 :--|:--|
 <b> Lab | <b> CHEMICAL ENGINEERING FLUID MECHANICS LAB
-<b> Experiment|     <b> To Find The Flow of Flow Using a V Notch
+<b> Experiment|     <b> To Study the working principle of a centrifugal pump and determine its efficiency experimentally
 
 ### About the Experiment 
 
