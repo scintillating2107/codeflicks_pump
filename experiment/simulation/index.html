@@ -1,13 +1,1074 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<!-- Add CSS at the head of HTML file -->
-    <link rel="stylesheet" href="./css/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centrifugal Pump Virtual Lab | Chemical Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .pump-animation {
+            animation: rotate 2s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .flow-animation::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(64, 158, 255, 0.4), transparent);
+            animation: flow 3s linear infinite;
+        }
+        @keyframes flow {
+            to { left: 100%; }
+        }
+        .gauge-needle {
+            transform-origin: 50% 100%;
+            transition: transform 0.5s ease-out;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .instrument-panel {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
 </head>
-<body>
-		<!-- Your code goes here-->
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white rounded-xl shadow-lg p-6 mb-6 glass-effect">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold">Centrifugal Pump Virtual Lab</h1>
+                    <p class="mt-2 text-blue-100">Chemical Engineering Fluid Mechanics Laboratory</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+                    <button id="help-btn" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-question-circle mr-2"></i>Help Guide
+                    </button>
+                    <button id="reset-btn" class="bg-red-600/90 hover:bg-red-700 px-4 py-2 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-redo mr-2"></i>Reset Experiment
+                    </button>
+                </div>
+            </div>
+        </header>
 
-	<!-- Add JS at the bottom of HTML file --> 
-        <script src="./js/main.js"></script>
+        <!-- Main Content -->
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Experiment Visualization -->
+            <div class="lg:w-2/3 bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold">Experimental Setup</h2>
+                        <div class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                            <i class="fas fa-flask mr-1"></i> Virtual Lab
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <!-- Pump System Visualization -->
+                    <div class="relative h-96 bg-gradient-to-b from-blue-50 to-blue-100 rounded-lg overflow-hidden border border-blue-200">
+                        <!-- Water tank -->
+                        <div class="absolute bottom-6 left-6 w-32 h-3/4 bg-blue-300/80 border-2 border-blue-400 rounded-t-lg shadow-md">
+                            <div class="absolute top-0 left-0 right-0 h-2 bg-blue-500"></div>
+                            <div id="tank-water" class="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-blue-400 to-blue-500 transition-all duration-700"></div>
+                            <div class="absolute bottom-0 left-0 right-0 text-center text-xs text-blue-800 font-medium py-1">
+                                Water Tank
+                            </div>
+                        </div>
+                        
+                        <!-- Pump -->
+                        <div class="absolute bottom-24 left-40">
+                            <div class="relative">
+                                <!-- Motor -->
+                                <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-gray-600 rounded-t-lg shadow-md">
+                                    <div class="absolute top-1/2 left-1/2 w-10 h-1 bg-gray-700 transform -translate-x-1/2 -translate-y-1/2"></div>
+                                </div>
+                                <!-- Pump casing -->
+                                <div class="w-32 h-24 bg-gray-500 rounded-lg border-2 border-gray-600 shadow-md">
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                        <div id="impeller" class="w-16 h-16 bg-gray-400 rounded-full border-2 border-gray-600 pump-animation">
+                                            <div class="absolute top-0 left-1/2 w-1 h-8 bg-gray-700 transform -translate-x-1/2"></div>
+                                            <div class="absolute top-0 left-1/2 w-1 h-8 bg-gray-700 transform -translate-x-1/2 rotate-90"></div>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-0 left-0 right-0 text-center text-xs text-white font-medium py-1">
+                                        Centrifugal Pump
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pipes -->
+                        <div class="absolute bottom-40 left-36 w-4 h-8 bg-gray-500"></div> <!-- Inlet pipe vertical -->
+                        <div class="absolute bottom-40 left-36 w-16 h-4 bg-gray-500"></div> <!-- Inlet pipe horizontal -->
+                        
+                        <div class="absolute bottom-28 left-72 w-32 h-4 bg-gray-500"></div> <!-- Outlet pipe -->
+                        
+                        <!-- Flow meter -->
+                        <div class="absolute bottom-24 left-80 w-16 h-16 bg-white border-2 border-gray-400 rounded-lg shadow-sm flex flex-col items-center justify-center instrument-panel">
+                            <div class="text-xs font-bold text-gray-700">Flow Meter</div>
+                            <div class="text-lg font-mono font-bold text-blue-600 mt-1" id="flow-meter-display">0.00</div>
+                        </div>
+                        
+                        <!-- Pressure gauges -->
+                        <div class="absolute bottom-40 left-24 w-14 h-14 bg-white border-2 border-gray-400 rounded-full flex items-center justify-center instrument-panel">
+                            <div class="relative w-12 h-12">
+                                <div class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-blue-600 border-r-blue-600 rounded-full"></div>
+                                <div id="suction-gauge-needle" class="gauge-needle absolute top-1/2 left-1/2 w-1 h-5 bg-red-600 transform -translate-x-1/2 -translate-y-full rotate-45"></div>
+                                <div class="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-black rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="absolute bottom-0 left-0 right-0 text-center text-[8px] text-gray-600 font-medium">
+                                    Suction
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute bottom-24 left-96 w-14 h-14 bg-white border-2 border-gray-400 rounded-full flex items-center justify-center instrument-panel">
+                            <div class="relative w-12 h-12">
+                                <div class="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-blue-600 border-r-blue-600 rounded-full"></div>
+                                <div id="discharge-gauge-needle" class="gauge-needle absolute top-1/2 left-1/2 w-1 h-5 bg-red-600 transform -translate-x-1/2 -translate-y-full rotate-45"></div>
+                                <div class="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-black rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="absolute bottom-0 left-0 right-0 text-center text-[8px] text-gray-600 font-medium">
+                                    Discharge
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Control panel -->
+                        <div class="absolute bottom-42 right-6 bg-white p-4 rounded-xl border border-gray-300 shadow-lg">
+                            <div class="flex items-center mb-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-tachometer-alt text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Speed (RPM)</label>
+                                    <div class="flex items-center">
+                                        <input id="speed-control" type="range" min="500" max="3000" value="1500" class="w-32">
+                                        <span id="speed-value" class="ml-3 w-14 text-center bg-blue-50 px-2 py-1 rounded text-sm font-mono">1500</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-faucet text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Valve Position</label>
+                                    <div class="flex items-center">
+                                        <input id="valve-control" type="range" min="0" max="100" value="50" class="w-32">
+                                        <span id="valve-value" class="ml-3 w-14 text-center bg-blue-50 px-2 py-1 rounded text-sm font-mono">50%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="start-stop-btn" class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center">
+                                <i class="fas fa-power-off mr-2"></i> 
+                                <span id="start-stop-text">Start Pump</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Data Display -->
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-tint text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-700">Flow Rate</span>
+                                </div>
+                                <div class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Q</div>
+                            </div>
+                            <div class="mt-3 flex items-end">
+                                <span id="flow-rate" class="text-2xl font-bold text-gray-800">0.00</span>
+                                <span class="text-gray-500 ml-1 mb-1">m³/s</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-tachometer-alt text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-700">Suction Pressure</span>
+                                </div>
+                                <div class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">P₁</div>
+                            </div>
+                            <div class="mt-3 flex items-end">
+                                <span id="suction-pressure" class="text-2xl font-bold text-gray-800">0.00</span>
+                                <span class="text-gray-500 ml-1 mb-1">kPa</span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-tachometer-alt text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-700">Discharge Pressure</span>
+                                </div>
+                                <div class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">P₂</div>
+                            </div>
+                            <div class="mt-3 flex items-end">
+                                <span id="discharge-pressure" class="text-2xl font-bold text-gray-800">0.00</span>
+                                <span class="text-gray-500 ml-1 mb-1">kPa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls and Data -->
+            <div class="lg:w-1/3 space-y-6">
+                <!-- Tabs -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="flex border-b">
+                        <button class="tab-btn active py-3 px-6 font-medium text-blue-700 border-b-2 border-blue-700 flex items-center" data-tab="procedure">
+                            <i class="fas fa-list-ol mr-2"></i>Procedure
+                        </button>
+                        <button class="tab-btn py-3 px-6 font-medium text-gray-600 hover:text-blue-700 flex items-center" data-tab="observations">
+                            <i class="fas fa-table mr-2"></i>Data
+                        </button>
+                        <button class="tab-btn py-3 px-6 font-medium text-gray-600 hover:text-blue-700 flex items-center" data-tab="calculations">
+                            <i class="fas fa-calculator mr-2"></i>Analysis
+                        </button>
+                    </div>
+                    
+                    <div class="p-5">
+                        <!-- Procedure Tab -->
+                        <div id="procedure" class="tab-content active">
+                            <h3 class="font-bold text-lg mb-3 text-gray-800 flex items-center">
+                                <i class="fas fa-flask text-blue-600 mr-2"></i>Experiment Procedure
+                            </h3>
+                            <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                                <li class="pb-2 border-b border-gray-100">Ensure all valves are initially closed and the pump is off.</li>
+                                <li class="pb-2 border-b border-gray-100">Fill the water tank to about 80% capacity.</li>
+                                <li class="pb-2 border-b border-gray-100">Open the suction valve completely.</li>
+                                <li class="pb-2 border-b border-gray-100">Start the pump using the control panel.</li>
+                                <li class="pb-2 border-b border-gray-100">Gradually adjust the discharge valve to control flow rate.</li>
+                                <li class="pb-2 border-b border-gray-100">Record pressure readings at suction and discharge sides.</li>
+                                <li class="pb-2 border-b border-gray-100">Measure flow rate using the flow meter.</li>
+                                <li class="pb-2 border-b border-gray-100">Vary the pump speed and valve positions to collect data.</li>
+                                <li class="pb-2 border-b border-gray-100">Calculate pump efficiency using the recorded data.</li>
+                                <li>Stop the pump and close all valves when finished.</li>
+                            </ol>
+                            
+                            <h3 class="font-bold text-lg mt-6 mb-3 text-gray-800 flex items-center">
+                                <i class="fas fa-bullseye text-blue-600 mr-2"></i>Learning Objectives
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                <li class="pb-2 border-b border-gray-100">Understand the working principle of centrifugal pumps</li>
+                                <li class="pb-2 border-b border-gray-100">Analyze pump performance characteristics</li>
+                                <li class="pb-2 border-b border-gray-100">Determine pump efficiency under various conditions</li>
+                                <li class="pb-2 border-b border-gray-100">Study flow rate, head, and power relationships</li>
+                                <li>Interpret pump performance curves</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Observations Tab -->
+                        <div id="observations" class="tab-content">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center">
+                                    <i class="fas fa-database text-blue-600 mr-2"></i>Experimental Data
+                                </h3>
+                                <div class="flex gap-2">
+                                    <button id="export-data" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg transition-all duration-200" title="Export Data">
+                                        <i class="fas fa-file-export"></i>
+                                    </button>
+                                    <button id="clear-observations" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-lg transition-all duration-200" title="Clear Data">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                                <table class="min-w-full bg-white">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th class="py-3 px-4">Run</th>
+                                            <th class="py-3 px-4">RPM</th>
+                                            <th class="py-3 px-4">Flow</th>
+                                            <th class="py-3 px-4">P₁</th>
+                                            <th class="py-3 px-4">P₂</th>
+                                            <th class="py-3 px-4"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="observation-table" class="divide-y divide-gray-200 text-sm">
+                                        <!-- Data will be added here -->
+                                        <tr>
+                                            <td colspan="6" class="py-4 text-center text-gray-500">No observations recorded yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button id="add-observation" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center">
+                                <i class="fas fa-plus-circle mr-2"></i> Record Data Point
+                            </button>
+                        </div>
+                        
+                        <!-- Calculations Tab -->
+                        <div id="calculations" class="tab-content">
+                            <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center">
+                                <i class="fas fa-chart-line text-blue-600 mr-2"></i>Performance Analysis
+                            </h3>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+                                    <i class="fas fa-calculator text-blue-500 mr-2"></i>Key Formulas
+                                </h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">Pump Head (H):</label>
+                                        <div class="bg-white p-2 rounded text-sm font-mono border border-gray-200">
+                                            H = (P₂ - P₁)/(ρg) + (v₂² - v₁²)/2g
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">Hydraulic Power (Pₕ):</label>
+                                        <div class="bg-white p-2 rounded text-sm font-mono border border-gray-200">
+                                            Pₕ = ρ × g × Q × H
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-1">Pump Efficiency (η):</label>
+                                        <div class="bg-white p-2 rounded text-sm font-mono border border-gray-200">
+                                            η = (Pₕ / Pₛ) × 100%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">Pump Head</div>
+                                    <div id="calc-head" class="text-xl font-bold text-blue-600">0.00 <span class="text-sm font-normal text-gray-500">m</span></div>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">Hydraulic Power</div>
+                                    <div id="calc-hyd-power" class="text-xl font-bold text-blue-600">0.00 <span class="text-sm font-normal text-gray-500">W</span></div>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">Shaft Power</div>
+                                    <div id="calc-shaft-power" class="text-xl font-bold text-blue-600">0.00 <span class="text-sm font-normal text-gray-500">W</span></div>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">Efficiency</div>
+                                    <div id="calc-efficiency" class="text-xl font-bold text-blue-600">0.00 <span class="text-sm font-normal text-gray-500">%</span></div>
+                                </div>
+                            </div>
+                            
+                            <button id="calculate-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center">
+                                <i class="fas fa-calculator mr-2"></i> Calculate Performance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Curve -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <i class="fas fa-chart-bar mr-2"></i>Performance Curves
+                        </h2>
+                    </div>
+                    <div class="p-4">
+                        <div class="h-64 bg-gray-50 rounded-lg border border-gray-200 relative" id="performance-chart">
+                            <canvas id="chartCanvas"></canvas>
+                        </div>
+                        <div class="mt-4 flex justify-center gap-2">
+                            <button id="plot-head" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-lg text-sm transition-all duration-200 flex items-center">
+                                <i class="fas fa-water mr-1"></i> Head
+                            </button>
+                            <button id="plot-efficiency" class="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded-lg text-sm transition-all duration-200 flex items-center">
+                                <i class="fas fa-percentage mr-1"></i> Efficiency
+                            </button>
+                            <button id="plot-power" class="bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-lg text-sm transition-all duration-200 flex items-center">
+                                <i class="fas fa-bolt mr-1"></i> Power
+                            </button>
+                        </div>
+                        <div class="mt-3 text-center text-xs text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i> Select a curve type to visualize performance
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b p-5">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-question-circle text-blue-600 mr-2"></i>Centrifugal Pump Experiment Guide
+                </h3>
+                <button id="close-help" class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg mb-3 text-blue-700 flex items-center">
+                        <i class="fas fa-bullseye mr-2"></i>Experiment Objective
+                    </h4>
+                    <p class="text-gray-700">
+                        The objective of this experiment is to study the working principle of a centrifugal pump and determine its efficiency under various operating conditions. 
+                        You will analyze the relationship between flow rate, head, and power consumption, and generate performance curves for the pump.
+                    </p>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg mb-3 text-blue-700 flex items-center">
+                        <i class="fas fa-atom mr-2"></i>Theory
+                    </h4>
+                    <p class="text-gray-700 mb-3">
+                        A centrifugal pump converts rotational kinetic energy to hydrodynamic energy of the fluid flow. The rotational energy typically comes from an electric motor. 
+                        The fluid enters the pump impeller along or near to the rotating axis and is accelerated by the impeller, flowing radially outward into a diffuser or volute chamber, from where it exits.
+                    </p>
+                    <p class="text-gray-700 font-medium mb-1">
+                        Key performance parameters include:
+                    </p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1 text-gray-700">
+                        <li><strong>Flow rate (Q):</strong> Volume of fluid delivered per unit time (m³/s)</li>
+                        <li><strong>Head (H):</strong> Energy per unit weight of fluid (m)</li>
+                        <li><strong>Hydraulic power (Pₕ):</strong> ρgQH</li>
+                        <li><strong>Shaft power (Pₛ):</strong> Power input to the pump shaft</li>
+                        <li><strong>Efficiency (η):</strong> Ratio of hydraulic power to shaft power</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg mb-3 text-blue-700 flex items-center">
+                        <i class="fas fa-vials mr-2"></i>Virtual Lab Instructions
+                    </h4>
+                    <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                        <li>Start by filling the tank using the water level control</li>
+                        <li>Turn on the pump using the power button</li>
+                        <li>Adjust the pump speed and valve position to vary operating conditions</li>
+                        <li>Record observations at different settings using the "Record Data Point" button</li>
+                        <li>Switch to the "Analysis" tab to calculate pump efficiency</li>
+                        <li>Generate performance curves to analyze pump characteristics</li>
+                        <li>Compare results at different speeds and flow rates</li>
+                    </ol>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-3 text-blue-700 flex items-center">
+                        <i class="fas fa-shield-alt mr-2"></i>Safety Precautions
+                    </h4>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                        <li>Never run the pump dry (without fluid)</li>
+                        <li>Avoid sudden changes in valve positions</li>
+                        <li>Monitor pressure gauges to prevent overpressure</li>
+                        <li>Ensure proper priming before starting the pump</li>
+                        <li>Follow standard laboratory safety protocols</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="flex justify-end p-5 border-t">
+                <button id="close-help-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all duration-200">
+                    Close Guide
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center hidden z-50">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message">Operation successful</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // DOM Elements
+        const startStopBtn = document.getElementById('start-stop-btn');
+        const startStopText = document.getElementById('start-stop-text');
+        const speedControl = document.getElementById('speed-control');
+        const speedValue = document.getElementById('speed-value');
+        const valveControl = document.getElementById('valve-control');
+        const valveValue = document.getElementById('valve-value');
+        const flowRateDisplay = document.getElementById('flow-rate');
+        const flowMeterDisplay = document.getElementById('flow-meter-display');
+        const suctionPressureDisplay = document.getElementById('suction-pressure');
+        const dischargePressureDisplay = document.getElementById('discharge-pressure');
+        const impeller = document.getElementById('impeller');
+        const suctionGaugeNeedle = document.getElementById('suction-gauge-needle');
+        const dischargeGaugeNeedle = document.getElementById('discharge-gauge-needle');
+        const tankWater = document.getElementById('tank-water');
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelp = document.getElementById('close-help');
+        const closeHelpBtn = document.getElementById('close-help-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const addObservationBtn = document.getElementById('add-observation');
+        const exportDataBtn = document.getElementById('export-data');
+        const clearObservationsBtn = document.getElementById('clear-observations');
+        const observationTable = document.getElementById('observation-table');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const plotHeadBtn = document.getElementById('plot-head');
+        const plotEfficiencyBtn = document.getElementById('plot-efficiency');
+        const plotPowerBtn = document.getElementById('plot-power');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        // Calculation displays
+        const calcHead = document.getElementById('calc-head');
+        const calcHydPower = document.getElementById('calc-hyd-power');
+        const calcShaftPower = document.getElementById('calc-shaft-power');
+        const calcEfficiency = document.getElementById('calc-efficiency');
+        
+        // State variables
+        let isPumpRunning = false;
+        let currentSpeed = 1500;
+        let currentValvePosition = 50;
+        let observations = [];
+        let chart = null;
+        
+        // Constants
+        const WATER_DENSITY = 1000; // kg/m³
+        const GRAVITY = 9.81; // m/s²
+        const MAX_FLOW_RATE = 0.05; // m³/s
+        const MAX_PRESSURE = 300; // kPa
+        
+        // Initialize
+        updateDisplays();
+        initChart();
+        
+        // Event Listeners
+        startStopBtn.addEventListener('click', togglePump);
+        speedControl.addEventListener('input', updateSpeed);
+        valveControl.addEventListener('input', updateValve);
+        helpBtn.addEventListener('click', () => helpModal.classList.remove('hidden'));
+        closeHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
+        closeHelpBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
+        resetBtn.addEventListener('click', resetExperiment);
+        addObservationBtn.addEventListener('click', addObservation);
+        exportDataBtn.addEventListener('click', exportData);
+        clearObservationsBtn.addEventListener('click', clearObservations);
+        calculateBtn.addEventListener('click', calculateEfficiency);
+        plotHeadBtn.addEventListener('click', () => plotPerformanceCurve('head'));
+        plotEfficiencyBtn.addEventListener('click', () => plotPerformanceCurve('efficiency'));
+        plotPowerBtn.addEventListener('click', () => plotPerformanceCurve('power'));
+        
+        // Tab switching
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabBtns.forEach(tb => tb.classList.remove('active', 'text-blue-700', 'border-blue-700'));
+                tabBtns.forEach(tb => tb.classList.add('text-gray-600'));
+                btn.classList.add('active', 'text-blue-700', 'border-blue-700');
+                btn.classList.remove('text-gray-600');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Functions
+        function togglePump() {
+            isPumpRunning = !isPumpRunning;
+            
+            if (isPumpRunning) {
+                startStopText.textContent = 'Stop Pump';
+                startStopBtn.classList.remove('from-green-600', 'to-green-500', 'hover:from-green-700', 'hover:to-green-600');
+                startStopBtn.classList.add('from-red-600', 'to-red-500', 'hover:from-red-700', 'hover:to-red-600');
+                impeller.style.animationPlayState = 'running';
+                showToast('Pump started successfully');
+            } else {
+                startStopText.textContent = 'Start Pump';
+                startStopBtn.classList.remove('from-red-600', 'to-red-500', 'hover:from-red-700', 'hover:to-red-600');
+                startStopBtn.classList.add('from-green-600', 'to-green-500', 'hover:from-green-700', 'hover:to-green-600');
+                impeller.style.animationPlayState = 'paused';
+                showToast('Pump stopped');
+            }
+            
+            updateDisplays();
+        }
+        
+        function updateSpeed() {
+            currentSpeed = parseInt(speedControl.value);
+            speedValue.textContent = currentSpeed;
+            
+            // Adjust animation speed based on RPM
+            const animationDuration = 120 - (currentSpeed / 50);
+            impeller.style.animationDuration = `${animationDuration}s`;
+            
+            updateDisplays();
+        }
+        
+        function updateValve() {
+            currentValvePosition = parseInt(valveControl.value);
+            valveValue.textContent = `${currentValvePosition}%`;
+            updateDisplays();
+        }
+        
+        function updateDisplays() {
+            if (!isPumpRunning) {
+                flowRateDisplay.textContent = '0.00';
+                flowMeterDisplay.textContent = '0.00';
+                suctionPressureDisplay.textContent = '0.00';
+                dischargePressureDisplay.textContent = '0.00';
+                
+                // Reset gauge needles
+                suctionGaugeNeedle.style.transform = 'translate(-50%, -100%) rotate(45deg)';
+                dischargeGaugeNeedle.style.transform = 'translate(-50%, -100%) rotate(45deg)';
+                
+                // Reset tank water level animation
+                tankWater.style.height = '0%';
+                return;
+            }
+            
+            // Calculate flow rate based on valve position and speed
+            const flowRate = (currentValvePosition / 100) * (currentSpeed / 3000) * MAX_FLOW_RATE;
+            flowRateDisplay.textContent = flowRate.toFixed(4);
+            flowMeterDisplay.textContent = flowRate.toFixed(2);
+            
+            // Calculate pressures (simplified model)
+            const suctionPressure = 100 - (flowRate * 1000); // kPa (suction is negative)
+            const dischargePressure = 50 + (currentSpeed / 30) + (flowRate * 2000); // kPa
+            
+            suctionPressureDisplay.textContent = Math.max(0, suctionPressure).toFixed(2);
+            dischargePressureDisplay.textContent = Math.min(MAX_PRESSURE, dischargePressure).toFixed(2);
+            
+            // Update gauge needles
+            const suctionAngle = 45 + (suctionPressure / MAX_PRESSURE * 270);
+            const dischargeAngle = 45 + (dischargePressure / MAX_PRESSURE * 270);
+            
+            suctionGaugeNeedle.style.transform = `translate(-50%, -100%) rotate(${suctionAngle}deg)`;
+            dischargeGaugeNeedle.style.transform = `translate(-50%, -100%) rotate(${dischargeAngle}deg)`;
+            
+            // Update tank water level (simplified)
+            const waterLevel = 80 - (flowRate * 2000);
+            tankWater.style.height = `${Math.max(5, waterLevel)}%`;
+        }
+        
+        function resetExperiment() {
+            isPumpRunning = false;
+            currentSpeed = 1500;
+            currentValvePosition = 50;
+            
+            speedControl.value = currentSpeed;
+            speedValue.textContent = currentSpeed;
+            
+            valveControl.value = currentValvePosition;
+            valveValue.textContent = `${currentValvePosition}%`;
+            
+            startStopText.textContent = 'Start Pump';
+            startStopBtn.classList.remove('from-red-600', 'to-red-500', 'hover:from-red-700', 'hover:to-red-600');
+            startStopBtn.classList.add('from-green-600', 'to-green-500', 'hover:from-green-700', 'hover:to-green-600');
+            
+            impeller.style.animationPlayState = 'paused';
+            impeller.style.animationDuration = '120s';
+            
+            observations = [];
+            updateObservationTable();
+            
+            updateDisplays();
+            
+            // Reset chart
+            if (chart) {
+                chart.destroy();
+            }
+            initChart();
+            
+            showToast('Experiment reset successfully');
+        }
+        
+        function addObservation() {
+            if (!isPumpRunning) {
+                showToast('Please start the pump before recording data', 'error');
+                return;
+            }
+            
+            const flowRate = parseFloat(flowRateDisplay.textContent);
+            const suctionPressure = parseFloat(suctionPressureDisplay.textContent);
+            const dischargePressure = parseFloat(dischargePressureDisplay.textContent);
+            
+            const observation = {
+                run: observations.length + 1,
+                speed: currentSpeed,
+                flow: flowRate,
+                suctionPressure: suctionPressure,
+                dischargePressure: dischargePressure,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            observations.push(observation);
+            updateObservationTable();
+            showToast('Data point recorded successfully');
+        }
+        
+        function exportData() {
+            if (observations.length === 0) {
+                showToast('No data available to export', 'error');
+                return;
+            }
+            
+            // Convert observations to CSV
+            let csv = 'Run,Speed (RPM),Flow Rate (m³/s),Suction Pressure (kPa),Discharge Pressure (kPa),Timestamp\n';
+            observations.forEach(obs => {
+                csv += `${obs.run},${obs.speed},${obs.flow.toFixed(4)},${obs.suctionPressure.toFixed(2)},${obs.dischargePressure.toFixed(2)},${obs.timestamp}\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'pump_experiment_data.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showToast('Data exported successfully');
+        }
+        
+        function clearObservations() {
+            if (observations.length === 0) {
+                showToast('No data to clear', 'error');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all experimental data?')) {
+                observations = [];
+                updateObservationTable();
+                
+                // Reset calculations
+                calcHead.textContent = '0.00 m';
+                calcHydPower.textContent = '0.00 W';
+                calcShaftPower.textContent = '0.00 W';
+                calcEfficiency.textContent = '0.00 %';
+                
+                // Reset chart
+                if (chart) {
+                    chart.destroy();
+                }
+                initChart();
+                
+                showToast('All data cleared');
+            }
+        }
+        
+        function updateObservationTable() {
+            observationTable.innerHTML = '';
+            
+            if (observations.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="6" class="py-4 text-center text-gray-500">No observations recorded yet</td>
+                `;
+                observationTable.appendChild(row);
+                return;
+            }
+            
+            observations.forEach(obs => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="py-3 px-4 text-center text-sm">${obs.run}</td>
+                    <td class="py-3 px-4 text-center text-sm">${obs.speed}</td>
+                    <td class="py-3 px-4 text-center text-sm font-mono">${obs.flow.toFixed(4)}</td>
+                    <td class="py-3 px-4 text-center text-sm font-mono">${obs.suctionPressure.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-center text-sm font-mono">${obs.dischargePressure.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button class="delete-obs text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 transition-colors duration-200" data-id="${obs.run - 1}" title="Delete">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                    </td>
+                `;
+                observationTable.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-obs').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-id'));
+                    observations.splice(index, 1);
+                    updateObservationTable();
+                    showToast('Data point deleted');
+                });
+            });
+        }
+        
+        function calculateEfficiency() {
+            if (observations.length === 0) {
+                showToast('No data available for calculation', 'error');
+                return;
+            }
+            
+            // For simplicity, we'll calculate for the last observation
+            const lastObs = observations[observations.length - 1];
+            
+            // Calculate pump head (simplified - ignoring velocity head difference)
+            const head = (lastObs.dischargePressure - lastObs.suctionPressure) * 1000 / (WATER_DENSITY * GRAVITY);
+            
+            // Calculate hydraulic power
+            const hydPower = WATER_DENSITY * GRAVITY * lastObs.flow * head;
+            
+            // Simplified shaft power calculation (not realistic but for simulation purposes)
+            const shaftPower = 500 + (lastObs.speed * 0.2) + (lastObs.flow * 5000);
+            
+            // Calculate efficiency
+            const efficiency = (hydPower / shaftPower) * 100;
+            
+            // Update displays
+            calcHead.textContent = head.toFixed(2) + ' m';
+            calcHydPower.textContent = hydPower.toFixed(2) + ' W';
+            calcShaftPower.textContent = shaftPower.toFixed(2) + ' W';
+            calcEfficiency.textContent = efficiency.toFixed(2) + ' %';
+            
+            // Add calculations to the observation
+            lastObs.head = head;
+            lastObs.hydPower = hydPower;
+            lastObs.shaftPower = shaftPower;
+            lastObs.efficiency = efficiency;
+            
+            // Update the chart with new data
+            plotPerformanceCurve('head');
+            
+            showToast('Performance calculated successfully');
+        }
+        
+        function initChart() {
+            const ctx = document.getElementById('chartCanvas').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Head vs Flow Rate',
+                        data: [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Head (m)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Flow Rate (m³/s)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 12,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        function plotPerformanceCurve(type = 'head') {
+            if (observations.length === 0) return;
+            
+            const ctx = document.getElementById('chartCanvas').getContext('2d');
+            
+            // Prepare data based on type
+            let label, yData, yLabel, borderColor, backgroundColor;
+            
+            switch(type) {
+                case 'head':
+                    label = 'Head vs Flow Rate';
+                    yData = observations.map(obs => obs.head || 0);
+                    yLabel = 'Head (m)';
+                    borderColor = 'rgb(59, 130, 246)';
+                    backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                    break;
+                case 'efficiency':
+                    label = 'Efficiency vs Flow Rate';
+                    yData = observations.map(obs => obs.efficiency || 0);
+                    yLabel = 'Efficiency (%)';
+                    borderColor = 'rgb(16, 185, 129)';
+                    backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                    break;
+                case 'power':
+                    label = 'Power vs Flow Rate';
+                    yData = observations.map(obs => obs.shaftPower || 0);
+                    yLabel = 'Power (W)';
+                    borderColor = 'rgb(124, 58, 237)';
+                    backgroundColor = 'rgba(124, 58, 237, 0.1)';
+                    break;
+                default:
+                    label = 'Head vs Flow Rate';
+                    yData = observations.map(obs => obs.head || 0);
+                    yLabel = 'Head (m)';
+                    borderColor = 'rgb(59, 130, 246)';
+                    backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            }
+            
+            const xData = observations.map(obs => obs.flow);
+            
+            // Destroy previous chart
+            if (chart) {
+                chart.destroy();
+            }
+            
+            // Create new chart
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xData,
+                    datasets: [{
+                        label: label,
+                        data: yData,
+                        borderColor: borderColor,
+                        backgroundColor: backgroundColor,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: borderColor,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: type !== 'head',
+                            title: {
+                                display: true,
+                                text: yLabel
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Flow Rate (m³/s)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Pump Performance: ${label}`,
+                            font: {
+                                size: 16
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 12,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            
+            // Set color based on type
+            if (type === 'error') {
+                toast.classList.remove('bg-green-600');
+                toast.classList.add('bg-red-600');
+            } else {
+                toast.classList.remove('bg-red-600');
+                toast.classList.add('bg-green-600');
+            }
+            
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
