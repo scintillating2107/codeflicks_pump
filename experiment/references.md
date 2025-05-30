@@ -1,4 +1,3 @@
-### Link your references in here
 
 <h2>References</h2>
 <ol>
