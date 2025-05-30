@@ -2,35 +2,86 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "This is a Sample Question 1?",
+      "question": "What is the main function of a centrifugal pump?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "To compress gases",
+        "b": "To convert pressure energy into kinetic energy",
+        "c": "To convert mechanical energy into hydraulic energy",
+        "d": "To measure the flow of fluid"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Centrifugal pumps do not compress gases, they pump liquids.",
+        "b": "The pump actually converts mechanical energy to pressure energy, not pressure to kinetic.",
+        "c": "Correct! The pump converts mechanical energy into hydraulic (pressure) energy.",
+        "d": "Measuring flow is done by flow meters, not pumps."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Which part of the centrifugal pump imparts energy to the fluid?",
+      "answers": {
+        "a": "Casing",
+        "b": "Impeller",
+        "c": "Delivery pipe",
+        "d": "Suction pipe"
+      },
+      "explanations": {
+        "a": "The casing directs flow but does not impart energy.",
+        "b": "Correct! The impeller imparts kinetic energy to the fluid.",
+        "c": "Delivery pipe carries fluid away, no energy addition.",
+        "d": "Suction pipe allows fluid entry but doesn’t add energy."
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Why is priming necessary before starting a centrifugal pump?",
+      "answers": {
+        "a": "To start the motor",
+        "b": "To clean the impeller",
+        "c": "To fill the pump with water and remove air",
+        "d": "To increase the pressure in the suction pipe"
+      },
+      "explanations": {
+        "a": "Priming is not related to motor operation.",
+        "b": "Priming does not clean the impeller.",
+        "c": "Correct! Priming ensures the pump casing is filled with fluid and air is removed.",
+        "d": "Pressure increases due to pump operation, not priming."
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "The efficiency of a centrifugal pump is calculated as:",
+      "answers": {
+        "a": "Output power divided by input power",
+        "b": "Head divided by discharge",
+        "c": "Discharge divided by head",
+        "d": "Input power divided by output power"
+      },
+      "explanations": {
+        "a": "Correct! Efficiency is the ratio of useful output power to input power.",
+        "b": "This is not efficiency, it’s a meaningless ratio here.",
+        "c": "This ratio does not define efficiency.",
+        "d": "This is the inverse of efficiency."
       },
       "correctAnswer": "a",
       "difficulty": "beginner"
     },
     {
-      "question": "This is a Sample Question 2?",
+      "question": "What happens to the fluid when it passes through the rotating impeller?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "Its temperature decreases",
+        "b": "It moves to the suction pipe",
+        "c": "Its velocity and pressure increase",
+        "d": "It gets compressed"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Temperature changes are minimal and not primary function.",
+        "b": "Fluid enters through the suction pipe, not moves to it after impeller.",
+        "c": "Correct! The impeller increases fluid velocity and pressure.",
+        "d": "Fluids are generally incompressible in pumps; pressure increase is due to energy addition, not compression."
       },
       "correctAnswer": "c",
       "difficulty": "beginner"
