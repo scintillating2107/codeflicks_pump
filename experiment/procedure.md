@@ -2,31 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Centrifugal Pump Procedure</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff;
-      color: #111;
-      padding: 20px;
-      line-height: 1.6;
-    }
-    h1, h2 {
-      color: #00509e;
-      margin-bottom: 10px;
-    }
-    ol, ul {
-      margin: 10px 0 20px 20px;
-    }
-    li {
-      margin-bottom: 10px;
-    }
-  </style>
+  
 </head>
 <body>
   <h1>Procedure: Centrifugal Pump Experiment</h1>
