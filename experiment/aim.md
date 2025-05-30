@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Aim of the Experiment</title>
 </head>
 <body>
   <h2>Aim</h2>
