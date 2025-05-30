@@ -2,38 +2,89 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "This is a Sample Question 1?",
+      "question": "What happens to the manometric head when the discharge of a centrifugal pump increases?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "It increases",
+        "b": "It decreases",
+        "c": "It remains constant",
+        "d": "It becomes zero"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Generally, head decreases as discharge increases due to pump characteristics.",
+        "b": "Correct! Usually, manometric head decreases with increase in discharge.",
+        "c": "Head varies with discharge, so it doesn't remain constant.",
+        "d": "Head does not become zero unless pump stops."
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Which factor primarily affects the efficiency of a centrifugal pump?",
+      "answers": {
+        "a": "Suction pressure only",
+        "b": "Discharge and head developed",
+        "c": "Material of the impeller",
+        "d": "Color of the pump casing"
+      },
+      "explanations": {
+        "a": "Suction pressure alone does not determine efficiency.",
+        "b": "Correct! Efficiency depends on discharge, head, and input power.",
+        "c": "Material affects durability but not efficiency directly.",
+        "d": "Color has no effect on efficiency."
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "If the input power to the pump is 2 kW and the output power is 1.5 kW, what is the efficiency?",
+      "answers": {
+        "a": "75%",
+        "b": "133%",
+        "c": "3.5%",
+        "d": "0.75%"
+      },
+      "explanations": {
+        "a": "Correct! Efficiency = (1.5 / 2) × 100 = 75%",
+        "b": "Efficiency cannot be more than 100%.",
+        "c": "Incorrect calculation.",
+        "d": "Incorrect calculation."
       },
       "correctAnswer": "a",
       "difficulty": "beginner"
     },
     {
-      "question": "This is a Sample Question 2?",
+      "question": "Which of the following is NOT a part of the centrifugal pump?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "Impeller",
+        "b": "Volute casing",
+        "c": "Piston",
+        "d": "Shaft"
       },
       "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+        "a": "Impeller is a key part of the pump.",
+        "b": "Volute casing directs fluid flow.",
+        "c": "Correct! Piston is part of reciprocating pumps, not centrifugal pumps.",
+        "d": "Shaft connects motor to impeller."
       },
       "correctAnswer": "c",
       "difficulty": "beginner"
+    },
+    {
+      "question": "What is the main reason for efficiency loss in a centrifugal pump?",
+      "answers": {
+        "a": "Friction and hydraulic losses",
+        "b": "Motor color",
+        "c": "Shape of the delivery pipe",
+        "d": "Type of valve used"
+      },
+      "explanations": {
+        "a": "Correct! Friction, turbulence, and hydraulic losses reduce efficiency.",
+        "b": "Motor color is irrelevant.",
+        "c": "Pipe shape has minor effect compared to losses inside pump.",
+        "d": "Valve type affects flow but is not main cause of efficiency loss."
+      },
+      "correctAnswer": "a",
+      "difficulty": "intermediate"
     }
   ]
 }
