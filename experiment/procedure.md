@@ -14,9 +14,12 @@
     }
     h1, h2 {
       color: #1a73e8;
+      margin-top: 0;  /* Remove top margin to avoid extra space */
+      padding-top: 0;
     }
     ol {
       padding-left: 20px;
+      margin-top: 0; /* Remove default margin above ordered list */
     }
     ol li {
       margin-bottom: 15px;
@@ -24,6 +27,7 @@
     ul {
       padding-left: 20px;
       margin-top: 10px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
