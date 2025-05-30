@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> Experiment </title>
 </head>
 <body>
   <h2>Experiment</h2>
