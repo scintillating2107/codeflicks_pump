@@ -1,210 +1,184 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pipe Flow Simulator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <title>Centrifugal Pump Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .simulation-area {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pump-diagram {
+            flex: 2;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .controls-panel {
+            flex: 1;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input[type="number"],
+        .input-group input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .results-table th {
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
-    <div class="theme-toggle">
-        <button id="theme-toggle-btn" aria-label="Toggle theme">
-            <i class="ti ti-moon theme-icon-dark"></i>
-            <i class="ti ti-sun theme-icon-light"></i>
-        </button>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>Centrifugal Pump Simulator</h1>
+            <p>Study the working principles and efficiency of a centrifugal pump</p>
+        </div>
 
-    <!-- Add popup dialog -->
-    <div id="input-parameter-popup" class="popup-dialog">
-        <div class="popup-content">
-            <p>Please Select The Input Parameter</p>
-            <button id="popup-ok-btn">Ok</button>
+        <div class="simulation-area">
+            <div class="pump-diagram" id="pumpDiagram">
+                <!-- Pump diagram will be drawn here using JavaScript -->
+                <canvas id="pumpCanvas" width="800" height="600"></canvas>
+            </div>
+
+            <div class="controls-panel">
+                <div class="input-group">
+                    <label for="voltage">Voltage (V):</label>
+                    <input type="range" id="voltage" min="180" max="240" value="220" step="1">
+                    <span id="voltageValue">220V</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="current">Current (A):</label>
+                    <input type="range" id="current" min="1" max="5" value="2.5" step="0.1">
+                    <span id="currentValue">2.5A</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="rpm">Motor RPM:</label>
+                    <input type="range" id="rpm" min="1000" max="3000" value="1500" step="100">
+                    <span id="rpmValue">1500 RPM</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="duration">Time Duration (s):</label>
+                    <select id="duration">
+                        <option value="30">30 seconds</option>
+                        <option value="60">60 seconds</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="volume">Volume (L):</label>
+                    <input type="number" id="volume" min="1" max="100" value="10">
+                </div>
+
+                <button id="startBtn">Start Simulation</button>
+                <button id="stopBtn" disabled>Stop</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>Results</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Voltage (V)</th>
+                        <th>Current (A)</th>
+                        <th>Time (s)</th>
+                        <th>Volume (L)</th>
+                        <th>Discharge (L/s)</th>
+                        <th>Head (m)</th>
+                        <th>Input Power (W)</th>
+                        <th>Output Power (W)</th>
+                        <th>Efficiency (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <!-- Results will be added here dynamically -->
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Intro Section -->
-    <div id="intro-section" class="container">
-        <div class="intro-content">
-            <h1>Aim of the Experiment</h1>
-            <p>To determine the frictional losses in a straight pipe</p>
-            <div class="static-diagram">
-                <canvas id="staticPipeCanvas"></canvas>
-            </div>
-            <button id="start-simulation" class="start-btn">Start Simulation</button>
-        </div>
-    </div>
-
-    <!-- Simulator Section -->
-    <div id="simulator-section" class="container" style="display: none;">
-        <div class="new-layout">
-            <!-- Left Column - Input Parameters -->
-            <div class="input-column">
-                <div class="card">
-                    <h2>Input Parameters</h2>
-                    <div class="controls">
-                        <div class="input-group">
-                            <label for="pipeLength">
-                                Pipe Length (L)
-                                <i class="ti ti-help-circle" data-tooltip="The total length of the pipe in meters"></i>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="number" id="pipeLength" min="1" max="10" step="0.1" value="5" />
-                                <span class="unit-label">m</span>
-                            </div>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="pipeDiameter">
-                                Pipe Diameter (D)
-                                <i class="ti ti-help-circle" data-tooltip="Internal diameter of the pipe in meters"></i>
-                            </label>
-                            <div class="input-wrapper">
-                                <input type="number" id="pipeDiameter" min="0.01" max="0.1" step="0.01" value="0.05" />
-                                <span class="unit-label">m</span>
-                            </div>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="flowRate">
-                                Flow Rate (Q)
-                                <i class="ti ti-help-circle" data-tooltip="Volume of fluid passing through the pipe per second"></i>
-                            </label>
-                            <input type="range" id="flowRate" min="0" max="2" step="0.1" value="0" />
-                            <div class="value-display">
-                                <span id="flowRateValue">0.0</span>
-                                <span class="unit-label">L/s</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="fluid">
-                                Fluid Type
-                                <i class="ti ti-help-circle" data-tooltip="Select the type of fluid for simulation"></i>
-                            </label>
-                            <select id="fluid">
-                                <option value="water">Water</option>
-                                <option value="glycerin">Glycerin</option>
-                                <option value="oil">Oil</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="content-column">
-                <!-- Flow Simulation -->
-                <div class="card simulation-card">
-                    <h2>Flow Visualization</h2>
-                    <div class="pipe-visualization">
-                        <div class="pressure-meter">
-                            <div class="meter-body">
-                                <div class="meter-dial">
-                                    <div class="meter-value" id="inlet-pressure-value">0</div>
-                                    <div class="meter-unit">Pa</div>
-                                </div>
-                                <div class="meter-scale"></div>
-                            </div>
-                            <div class="meter-label">Inlet Pressure</div>
-                        </div>
-                        
-                        <canvas id="pipeCanvas"></canvas>
-                        <div id="pressureReadings">
-                            <div class="pressure-gauge success" id="pressure1">
-                                <i class="ti ti-gauge"></i>
-                                P1: <span>0</span> Pa
-                                <div class="tooltip">Inlet pressure measurement point</div>
-                            </div>
-                            <div class="pressure-gauge" id="pressure2">
-                                <i class="ti ti-gauge"></i>
-                                P2: <span>0</span> Pa
-                                <div class="tooltip">Outlet pressure measurement point</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Calculation and Results -->
-                <div class="card calculation-card">
-                    <h2>Calculation and Results</h2>
-                    <!-- Results Section First -->
-                    <div class="results">
-                        <div class="result-item">
-                            <label>Flow Velocity</label>
-                            <div class="result-value">
-                                <span id="velocity">0.000</span>
-                                <span class="unit-label">m/s</span>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <label>Head Loss</label>
-                            <div class="result-value">
-                                <span id="headLoss">0.000</span>
-                                <span class="unit-label">m</span>
-                            </div>
-                        </div>
-                        <div class="result-item">
-                            <label>Friction Factor</label>
-                            <div class="result-value">
-                                <span id="frictionFactor">0.0000</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Formulas Section Below -->
-                    <div class="section-divider"></div>
-                    <h3 class="section-title">Calculation Formulas</h3>
-                    <div class="formulas-section">
-                        <div class="formula-item">
-                            <h3>Reynolds Number (Re)</h3>
-                            <div class="formula">Re = ρVD/μ</div>
-                            <div class="formula-description">
-                                where:<br>
-                                ρ = fluid density (kg/m³)<br>
-                                V = flow velocity (m/s)<br>
-                                D = pipe diameter (m)<br>
-                                μ = fluid viscosity (Pa·s)
-                            </div>
-                        </div>
-                        <div class="formula-item">
-                            <h3>Darcy Friction Factor (f)</h3>
-                            <div class="formula">
-                                f = 64/Re (laminar flow)<br>
-                                f = 0.316/Re^0.25 (turbulent flow)
-                            </div>
-                        </div>
-                        <div class="formula-item">
-                            <h3>Head Loss (hf)</h3>
-                            <div class="formula">hf = f(L/D)(V²/2g)</div>
-                            <div class="formula-description">
-                                where:<br>
-                                L = pipe length (m)<br>
-                                g = gravitational acceleration (9.81 m/s²)
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Graph Section -->
-            <div class="graph-column">
-                <div class="card graph-card">
-                    <h2>Head Loss vs Flow Velocity</h2>
-                    <div class="graph-container">
-                        <canvas id="headLossGraph"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script src="simulation.js"></script>
+    <script src="script.js"></script>
 </body>
 </html> 
