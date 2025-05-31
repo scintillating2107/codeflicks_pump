@@ -28,6 +28,7 @@
     <li><strong>Graph Analysis:</strong> Plot efficiency vs. discharge.</li>
     <li><strong>Shutdown:</strong> Close the valve and switch off the pump.</li>
   </ol>
+<img src="./images/WhatsApp Image 2025-05-31 at 23.07.12_d03f9a4d.jpg" alt="Reynolds Simulation" width="1000">
 
   <h2>Safety Precautions</h2>
   <ul>
