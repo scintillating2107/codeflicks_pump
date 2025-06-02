@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centrifugal Pump Simulator</title>
-    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -105,6 +105,19 @@
             </div>
         </div>
 
+        <div class="formula-section">
+            <h2>Formula Used</h2>
+            <div class="formula-card">
+                <h3>Pump Efficiency</h3>
+                <div class="formula">
+                    <p>Efficiency = (Output Power / Input Power) × 100%</p>
+                    <p>where:</p>
+                    <p>Output Power = Density  × Gravity  × Discharge Rate × Head</p>
+                    <p>Input Power = Voltage × Current</p>
+                </div>
+            </div>
+        </div>
+
         <div class="results-section">
             <h2>Results</h2>
             <table class="results-table">
@@ -152,6 +165,6 @@
         </div>
     </div>
 
-    <script src="./js/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html> 
