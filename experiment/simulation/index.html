@@ -4,1336 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centrifugal Pump Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #3730a3;
-            --accent-color: #6366f1;
-            --success-color: #059669;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
-            --border-color: #e5e7eb;
-            --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #7c3aed 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark-color);
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, rgba(76, 29, 149, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(30px);
-            border-radius: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            border: var(--glass-border);
-            position: relative;
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .header {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.9) 0%, rgba(55, 48, 163, 0.9) 100%);
-            backdrop-filter: blur(20px);
-            color: white;
-            text-align: center;
-            padding: 40px 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 50%, rgba(255,255,255,0.08) 0%, transparent 50%);
-        }
-
-        .header h1 {
-            font-size: 2.8rem;
-            font-weight: 900;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-            background: linear-gradient(45deg, #ffffff, #e0e7ff, #c7d2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.95;
-            position: relative;
-            z-index: 1;
-            max-width: 650px;
-            margin: 0 auto;
-            font-weight: 400;
-        }
-
-        .main-content {
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .status-indicators {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-            padding: 0;
-        }
-
-        .status-card {
-            background: var(--gradient-card);
-            backdrop-filter: blur(20px);
-            padding: 12px;
-            border-radius: 16px;
-            border: var(--glass-border);
-            text-align: center;
-            box-shadow: var(--glass-shadow);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .status-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            border-radius: 16px 16px 0 0;
-        }
-
-        .status-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.6s ease;
-            opacity: 0;
-        }
-
-        .status-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(31, 38, 135, 0.5);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        .status-card:hover::after {
-            opacity: 1;
-            top: -150%;
-            left: -150%;
-        }
-
-        .status-card .icon {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            color: var(--primary-color);
-            display: block;
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            z-index: 2;
-        }
-
-        .status-card .label {
-            font-size: 0.7rem;
-            color: #6b7280;
-            margin-bottom: 6px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .status-card .value {
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: var(--dark-color);
-            line-height: 1;
-            position: relative;
-            z-index: 2;
-        }
-
-        .simulation-area {
-            display: grid;
-            grid-template-columns: 2.2fr 1fr;
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-
-        .pump-section {
-            background: var(--gradient-card);
-            backdrop-filter: blur(25px);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
-            border: var(--glass-border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pump-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.03) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .pump-section h3 {
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 18px;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
-            position: relative;
-            z-index: 1;
-        }
-
-        .pump-diagram {
-            min-height: 650px;
-            position: relative;
-            background: transparent;
-            border-radius: 20px;
-            border: 2px solid rgba(59, 130, 246, 0.1);
-            overflow: hidden;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Flow Animation Arrows */
-        .flow-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 25px solid #3b82f6;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .flow-arrow.active {
-            opacity: 0.8;
-            animation: flowPulse 1.5s ease-in-out infinite;
-        }
-
-        .flow-arrow.horizontal {
-            transform: rotate(-90deg);
-        }
-
-        .flow-arrow.vertical {
-            transform: rotate(0deg);
-        }
-
-        .flow-arrow.diagonal {
-            transform: rotate(-45deg);
-        }
-
-        @keyframes flowPulse {
-            0%, 100% { 
-                opacity: 0.3; 
-                transform: scale(1) translateY(0);
-            }
-            50% { 
-                opacity: 0.9; 
-                transform: scale(1.1) translateY(-5px);
-            }
-        }
-
-        /* Pump Status Indicators */
-        .pump-status-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: #e5e7eb;
-            color: #6b7280;
-            transition: all 0.3s ease;
-        }
-
-        .pump-status-indicator.running {
-            background: linear-gradient(45deg, #10b981, #059669);
-            color: white;
-            animation: statusPulse 2s ease-in-out infinite;
-        }
-
-        .pump-status-indicator.stopped {
-            background: linear-gradient(45deg, #ef4444, #dc2626);
-            color: white;
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
-        }
-
-        /* Water Flow Simulation */
-        .water-particle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: radial-gradient(circle, #3b82f6, #1d4ed8);
-            border-radius: 50%;
-            opacity: 0;
-        }
-
-        .water-particle.active {
-            opacity: 0.7;
-            animation: waterFlow 3s linear infinite;
-        }
-
-        @keyframes waterFlow {
-            0% {
-                transform: translateX(0) translateY(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.7;
-            }
-            90% {
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateX(300px) translateY(-50px);
-                opacity: 0;
-            }
-        }
-
-        /* Pump RPM Visual Indicator */
-        .rpm-indicator {
-            display: none;
-        }
-
-        /* Flow Direction Indicators */
-        .flow-direction {
-            position: absolute;
-            font-size: 24px;
-            color: #3b82f6;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .flow-direction.active {
-            opacity: 0.8;
-            animation: flowDirection 2s ease-in-out infinite;
-        }
-
-        @keyframes flowDirection {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-
-        /* Simulation Running State */
-        .simulation-running .pump-diagram {
-            border-color: var(--success-color) !important;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3), inset 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        @keyframes backgroundPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.7; }
-        }
-
-        .controls-panel {
-            background: var(--gradient-card);
-            backdrop-filter: blur(25px);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
-            border: var(--glass-border);
-            height: fit-content;
-            position: relative;
-        }
-
-        .controls-panel h3 {
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 18px;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
-            position: relative;
-            z-index: 1;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark-color);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-group input[type="number"],
-        .input-group input[type="range"],
-        .input-group select {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid rgba(79, 70, 229, 0.1);
-            border-radius: 16px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            font-family: inherit;
-            font-weight: 500;
-        }
-
-        .input-group input[type="range"] {
-            padding: 8px 0;
-            background: transparent;
-            border: none;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .input-group input[type="range"]::-webkit-slider-track {
-            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
-            height: 8px;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .input-group input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-            transition: all 0.3s ease;
-            border: 2px solid white;
-        }
-
-        .input-group input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-        }
-
-        .input-group input[type="number"]:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .value-display {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            pointer-events: none;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-        }
-
-        .control-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            padding: 14px 20px;
-            border: none;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            min-height: 50px;
-            border: 2px solid transparent;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--success-color), #047857);
-            color: white;
-            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(5, 150, 105, 0.5);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
-            color: white;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.5);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #dc2626);
-            color: white;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.5);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .data-recording-section,
-        .export-section {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            padding: 18px;
-            border-radius: 12px;
-            border: 2px solid rgba(59, 130, 246, 0.1);
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .data-recording-section h4,
-        .export-section h4 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .export-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .export-buttons .btn {
-            min-height: 40px;
-            font-size: 0.85rem;
-            padding: 10px 14px;
-        }
-
-        .charts-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-
-        .chart-container {
-            background: var(--gradient-card);
-            backdrop-filter: blur(25px);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
-            border: var(--glass-border);
-        }
-
-        .chart-container h3 {
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 18px;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
-        }
-
-        .results-section {
-            background: var(--gradient-card);
-            backdrop-filter: blur(25px);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
-            border: var(--glass-border);
-        }
-
-        .results-section h2 {
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 18px;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 20px;
-            border: 2px solid rgba(59, 130, 246, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        .results-table th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 20px 18px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 1rem;
-            border: none;
-        }
-
-        .results-table td {
-            padding: 18px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .results-table tbody tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .results-table tbody tr:nth-child(even) {
-            background: #fafbfc;
-        }
-
-        @media (max-width: 1200px) {
-            .simulation-area {
-                grid-template-columns: 1fr;
-            }
-            
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 30px;
-            }
-            
-            .header {
-                padding: 40px 25px;
-            }
-            
-            .header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .control-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .export-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .status-indicators {
-                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-                gap: 15px;
-            }
-
-            .pump-section,
-            .controls-panel,
-            .chart-container,
-            .results-section {
-                padding: 25px;
-            }
-        }
-
-        .simulation-running {
-            position: relative;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) skew(-15deg); }
-            100% { transform: translateX(200%) skew(-15deg); }
-        }
-
-        .alert {
-            padding: 18px 24px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-weight: 600;
-            border: 2px solid;
-        }
-
-        .alert-info {
-            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
-            color: #1e40af;
-            border-color: #93c5fd;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #d1fae5, #dcfce7);
-            color: #065f46;
-            border-color: #6ee7b7;
-        }
-
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 1000;
-        }
-
-        .tooltip:hover::after {
-            opacity: 1;
-        }
-
-        /* Smaller Session Management Styles */
-        .saved-session-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            margin-bottom: 6px;
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
-        }
-
-        .saved-session-item:hover {
-            background: #f1f5f9;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .session-info {
-            flex: 1;
-        }
-
-        .session-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-small {
-            padding: 4px 8px;
-            font-size: 0.75rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            min-height: 28px;
-        }
-
-        .btn-small:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-            color: white;
-            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
-        }
-
-        .sessions-container::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sessions-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 2px;
-        }
-
-        .sessions-container::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 2px;
-        }
-
-        .data-statistics-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            max-width: 500px;
-            max-height: 70vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            cursor: pointer;
-            color: #6b7280;
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .modal-close:hover {
-            background: #f3f4f6;
-            color: var(--danger-color);
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Centrifugal Pump Simulator</h2>
+            <div class="modal-body">
+                <p>This interactive simulation allows you to study and understand the working principles of a centrifugal pump.</p>
+                
+                <h3>Objectives:</h3>
+                <ul>
+                    <li>Understand the relationship between pump parameters and performance</li>
+                    <li>Analyze efficiency under different operating conditions</li>
+                    <li>Visualize real-time pump operation and water flow</li>
+                    <li>Study the effects of voltage, current, and RPM on pump output</li>
+                </ul>
+                
+                <p>Use the control panel to adjust parameters and observe their effects on the pump's performance through the animated visualization and real-time graphs.</p>
+            </div>
+            <button id="startSimulationBtn" class="modal-button">
+                <i class="fas fa-play"></i>
+                Start Simulation
+            </button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-cogs"></i> Advanced Centrifugal Pump Simulator</h1>
-            <p>Comprehensive analysis and real-time monitoring of centrifugal pump performance</p>
+            <h1>Centrifugal Pump Simulator</h1>
+            <button id="voiceAssistBtn" class="voice-assist-btn">
+                <i class="fas fa-volume-up"></i>
+                Start Voice Assistant
+            </button>
         </div>
 
-        <div class="main-content">
-            <div class="status-indicators">
-                <div class="status-card tooltip" data-tooltip="Current motor rotation speed">
-                    <div class="icon"><i class="fas fa-tachometer-alt"></i></div>
-                    <div class="label">Current RPM</div>
-                    <div class="value" id="currentRpmDisplay">1500</div>
-                </div>
-                <div class="status-card tooltip" data-tooltip="Electrical power consumption">
-                    <div class="icon"><i class="fas fa-bolt"></i></div>
-                    <div class="label">Power (W)</div>
-                    <div class="value" id="currentPowerDisplay">550</div>
-                </div>
-                <div class="status-card tooltip" data-tooltip="Pump efficiency percentage">
-                    <div class="icon"><i class="fas fa-percentage"></i></div>
-                    <div class="label">Efficiency (%)</div>
-                    <div class="value" id="currentEfficiencyDisplay">0</div>
-                </div>
-                <div class="status-card tooltip" data-tooltip="Operating temperature">
-                    <div class="icon"><i class="fas fa-thermometer-half"></i></div>
-                    <div class="label">Temperature (°C)</div>
-                    <div class="value" id="temperatureDisplay">25</div>
-                </div>
-                <div class="status-card tooltip" data-tooltip="Total operation time">
-                    <div class="icon"><i class="fas fa-clock"></i></div>
-                    <div class="label">Runtime (s)</div>
-                    <div class="value" id="runtimeDisplay">0</div>
-                </div>
+        <div class="simulation-area">
+            <div class="pump-diagram" id="pumpDiagram">
+                <canvas id="pumpCanvas" width="800" height="600"></canvas>
             </div>
 
-            <div class="simulation-area">
-                <div class="pump-section">
-                    <h3><i class="fas fa-eye"></i> Pump Visualization</h3>
-                    <div class="pump-diagram" id="pumpDiagram">
-                        <canvas id="pumpCanvas" width="800" height="600"></canvas>
-                        
-                        <!-- Pump Status Indicator -->
-                        <div class="pump-status-indicator" id="pumpStatusIndicator">
-                            <i class="fas fa-circle"></i> IDLE
-                        </div>
-                        
-                        <!-- Flow Arrows -->
-                        <div class="flow-arrow horizontal" id="flowArrow1" style="top: 150px; left: 100px;"></div>
-                        <div class="flow-arrow horizontal" id="flowArrow2" style="top: 200px; left: 150px;"></div>
-                        <div class="flow-arrow vertical" id="flowArrow3" style="top: 250px; left: 200px;"></div>
-                        <div class="flow-arrow horizontal" id="flowArrow4" style="top: 300px; left: 300px;"></div>
-                        <div class="flow-arrow horizontal" id="flowArrow5" style="top: 350px; left: 400px;"></div>
-                        
-                        <!-- Flow Direction Indicators -->
-                        <div class="flow-direction" id="flowDirection1" style="top: 100px; left: 50px;">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                        <div class="flow-direction" id="flowDirection2" style="top: 180px; left: 250px;">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="flow-direction" id="flowDirection3" style="top: 280px; left: 450px;">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                        
-                        <!-- Water Particles -->
-                        <div class="water-particle" id="particle1" style="top: 160px; left: 80px;"></div>
-                        <div class="water-particle" id="particle2" style="top: 210px; left: 120px;"></div>
-                        <div class="water-particle" id="particle3" style="top: 260px; left: 160px;"></div>
-                        <div class="water-particle" id="particle4" style="top: 310px; left: 200px;"></div>
-                        <div class="water-particle" id="particle5" style="top: 360px; left: 240px;"></div>
-                        <div class="water-particle" id="particle6" style="top: 410px; left: 280px;"></div>
-                        
-                        <!-- Flow Rate Display -->
-                        <div style="position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 8px; font-size: 0.85rem;">
-                            <i class="fas fa-tachometer-alt" style="color: var(--primary-color);"></i>
-                            <span>Flow Rate: </span>
-                            <span id="diagramFlowRate" style="font-weight: 700; color: var(--primary-color);">0.00 L/s</span>
-                        </div>
-                        
-                        <!-- Pressure Display -->
-                        <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 8px; font-size: 0.85rem;">
-                            <i class="fas fa-compress-arrows-alt" style="color: var(--success-color);"></i>
-                            <span>Head: </span>
-                            <span id="diagramHead" style="font-weight: 700; color: var(--success-color);">0.00 m</span>
-                        </div>
-                    </div>
+            <div class="controls-panel">
+                <div class="input-group">
+                    <label for="voltage">Voltage (V):</label>
+                    <input type="range" id="voltage" min="180" max="240" value="220" step="1">
+                    <span id="voltageValue">220V</span>
                 </div>
 
-                <div class="controls-panel">
-                    <h3><i class="fas fa-sliders-h"></i> Control Panel</h3>
-                    
-                    <div class="input-group">
-                        <label for="voltage" class="tooltip" data-tooltip="Input electrical voltage (V)">
-                            <i class="fas fa-plug"></i> Voltage (V):
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="range" id="voltage" min="180" max="240" value="220" step="1">
-                            <span class="value-display" id="voltageValue">220V</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="current" class="tooltip" data-tooltip="Motor current consumption (A)">
-                            <i class="fas fa-bolt"></i> Current (A):
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="range" id="current" min="1" max="5" value="2.5" step="0.1">
-                            <span class="value-display" id="currentValue">2.5A</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="rpm" class="tooltip" data-tooltip="Motor rotation speed (RPM)">
-                            <i class="fas fa-tachometer-alt"></i> Motor RPM:
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="range" id="rpm" min="1000" max="3000" value="1500" step="100">
-                            <span class="value-display" id="rpmValue">1500</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="duration" class="tooltip" data-tooltip="Simulation duration">
-                            <i class="fas fa-clock"></i> Duration:
-                        </label>
-                        <select id="duration">
-                            <option value="30">30 seconds</option>
-                            <option value="60">60 seconds</option>
-                            <option value="120">2 minutes</option>
-                            <option value="300">5 minutes</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="volume" class="tooltip" data-tooltip="Water volume to process (L)">
-                            <i class="fas fa-tint"></i> Volume (L):
-                        </label>
-                        <input type="number" id="volume" min="1" max="100" value="10">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="headLoss" class="tooltip" data-tooltip="System head loss (m)">
-                            <i class="fas fa-arrow-down"></i> Head Loss (m):
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="range" id="headLoss" min="0" max="20" value="2" step="0.5">
-                            <span class="value-display" id="headLossValue">2m</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="fluidDensity" class="tooltip" data-tooltip="Fluid density (kg/m³)">
-                            <i class="fas fa-flask"></i> Fluid Density (kg/m³):
-                        </label>
-                        <input type="number" id="fluidDensity" min="800" max="1200" value="1000">
-                    </div>
-
-                    <div class="control-buttons">
-                        <button class="btn btn-primary tooltip" id="startBtn" data-tooltip="Start simulation (Ctrl+S)">
-                            <i class="fas fa-play"></i> Start
-                        </button>
-                        <button class="btn btn-secondary tooltip" id="stopBtn" disabled data-tooltip="Stop simulation (Ctrl+T)">
-                            <i class="fas fa-stop"></i> Stop
-                        </button>
-                        <button class="btn btn-danger tooltip" id="resetBtn" data-tooltip="Reset all values (Ctrl+R)">
-                            <i class="fas fa-redo"></i> Reset
-                        </button>
-                    </div>
-
-                    <div class="alert alert-info" style="padding: 10px 15px; font-size: 0.8rem; border-radius: 8px; margin-bottom: 15px; margin-top: 20px;">
-                        <i class="fas fa-info-circle" style="font-size: 0.9rem;"></i>
-                        <span>Adjust parameters and click Start to begin simulation</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Enhanced Formulas, Calculations & Results Section -->
-            <div class="formulas-calculations-section" style="background: var(--gradient-card); border-radius: 24px; padding: 35px; margin-bottom: 50px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.8);">
-                <h3 style="color: var(--primary-color); margin-bottom: 30px; font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 15px; padding-bottom: 20px; border-bottom: 3px solid #f1f5f9;">
-                    <i class="fas fa-calculator"></i> Pump Calculations & Formulas
-                </h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
-                    <!-- Power Calculations -->
-                    <div class="formula-card" style="background: rgba(59, 130, 246, 0.05); padding: 25px; border-radius: 16px; border: 2px solid rgba(59, 130, 246, 0.1);">
-                        <h4 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-bolt"></i> Power Calculations
-                        </h4>
-                        <div style="line-height: 1.8; color: #4b5563; font-size: 0.95rem;">
-                            <p><strong>Input Power:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">P_input = V × I × √3 × cos(φ)</p>
-                            <p style="margin-top: 10px;"><strong>Current Values:</strong></p>
-                            <p>• Voltage (V): <span id="calcVoltage" style="color: var(--primary-color); font-weight: 600;">220V</span></p>
-                            <p>• Current (I): <span id="calcCurrent" style="color: var(--primary-color); font-weight: 600;">2.5A</span></p>
-                            <p>• Power Factor: <span style="color: var(--primary-color); font-weight: 600;">0.85</span></p>
-                            <p style="margin-top: 10px;"><strong>Result:</strong> <span id="calcInputPower" style="color: var(--success-color); font-weight: 700; font-size: 1.1rem;">814W</span></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Flow Rate & Head -->
-                    <div class="formula-card" style="background: rgba(16, 185, 129, 0.05); padding: 25px; border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.1);">
-                        <h4 style="color: var(--success-color); margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-tint"></i> Flow Rate & Head
-                        </h4>
-                        <div style="line-height: 1.8; color: #4b5563; font-size: 0.95rem;">
-                            <p><strong>Flow Rate:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">Q = Volume / Time</p>
-                            <p><strong>Head Calculation:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">H = (RPM/1000)² × K - Head_Loss</p>
-                            <p style="margin-top: 10px;"><strong>Current Values:</strong></p>
-                            <p>• RPM: <span id="calcRPM" style="color: var(--success-color); font-weight: 600;">1500</span></p>
-                            <p>• Volume: <span id="calcVolume" style="color: var(--success-color); font-weight: 600;">10L</span></p>
-                            <p>• Head Loss: <span id="calcHeadLoss" style="color: var(--success-color); font-weight: 600;">2m</span></p>
-                            <p style="margin-top: 10px;"><strong>Results:</strong></p>
-                            <p>• Flow Rate: <span id="calcFlowRate" style="color: var(--success-color); font-weight: 700;">0.33 L/s</span></p>
-                            <p>• Head: <span id="calcHead" style="color: var(--success-color); font-weight: 700;">18.25 m</span></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Efficiency Calculation -->
-                    <div class="formula-card" style="background: rgba(245, 158, 11, 0.05); padding: 25px; border-radius: 16px; border: 2px solid rgba(245, 158, 11, 0.1);">
-                        <h4 style="color: var(--warning-color); margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-percentage"></i> Efficiency Calculation
-                        </h4>
-                        <div style="line-height: 1.8; color: #4b5563; font-size: 0.95rem;">
-                            <p><strong>Efficiency Formula:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">η = (ρ × g × Q × H) / P_input × 100%</p>
-                            <p style="margin-top: 10px;"><strong>Constants:</strong></p>
-                            <p>• Density (ρ): <span id="calcDensity" style="color: var(--warning-color); font-weight: 600;">1000 kg/m³</span></p>
-                            <p>• Gravity (g): <span style="color: var(--warning-color); font-weight: 600;">9.81 m/s²</span></p>
-                            <p style="margin-top: 10px;"><strong>Output Power:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">P_output = ρ × g × Q × H</p>
-                            <p style="margin-top: 10px;"><strong>Results:</strong></p>
-                            <p>• Output Power: <span id="calcOutputPower" style="color: var(--warning-color); font-weight: 700;">592W</span></p>
-                            <p>• Efficiency: <span id="calcEfficiency" style="color: var(--warning-color); font-weight: 700; font-size: 1.1rem;">72.7%</span></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Temperature & Performance -->
-                    <div class="formula-card" style="background: rgba(239, 68, 68, 0.05); padding: 25px; border-radius: 16px; border: 2px solid rgba(239, 68, 68, 0.1);">
-                        <h4 style="color: var(--danger-color); margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-thermometer-half"></i> Temperature & Performance
-                        </h4>
-                        <div style="line-height: 1.8; color: #4b5563; font-size: 0.95rem;">
-                            <p><strong>Temperature Rise:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">ΔT = (P_loss × 0.1) / (ρ × c_p × Q)</p>
-                            <p><strong>Operating Temperature:</strong></p>
-                            <p style="background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace;">T_op = T_ambient + ΔT + (100-η)/4</p>
-                            <p style="margin-top: 10px;"><strong>Current Values:</strong></p>
-                            <p>• Ambient Temp: <span style="color: var(--danger-color); font-weight: 600;">25°C</span></p>
-                            <p>• Power Loss: <span id="calcPowerLoss" style="color: var(--danger-color); font-weight: 600;">222W</span></p>
-                            <p>• Specific Heat: <span style="color: var(--danger-color); font-weight: 600;">4186 J/kg·K</span></p>
-                            <p style="margin-top: 10px;"><strong>Result:</strong></p>
-                            <p>• Operating Temp: <span id="calcOperatingTemp" style="color: var(--danger-color); font-weight: 700; font-size: 1.1rem;">31.8°C</span></p>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label for="current">Current (A):</label>
+                    <input type="range" id="current" min="1" max="5" value="2.5" step="0.1">
+                    <span id="currentValue">2.5A</span>
                 </div>
 
-                <!-- Real-time Calculation Summary -->
-                <div style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #f1f5f9, #e2e8f0); border-radius: 16px; border: 2px solid rgba(59, 130, 246, 0.1);">
-                    <h4 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-chart-line"></i> Live Calculation Summary
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Input Power</p>
-                            <p id="livePowerInput" style="font-size: 1.4rem; font-weight: 700; color: var(--primary-color);">814W</p>
-                        </div>
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Output Power</p>
-                            <p id="livePowerOutput" style="font-size: 1.4rem; font-weight: 700; color: var(--success-color);">592W</p>
-                        </div>
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Efficiency</p>
-                            <p id="liveEfficiency" style="font-size: 1.4rem; font-weight: 700; color: var(--warning-color);">72.7%</p>
-                        </div>
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Flow Rate</p>
-                            <p id="liveFlowRate" style="font-size: 1.4rem; font-weight: 700; color: var(--success-color);">0.33 L/s</p>
-                        </div>
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Head</p>
-                            <p id="liveHead" style="font-size: 1.4rem; font-weight: 700; color: var(--success-color);">18.25 m</p>
-                        </div>
-                        <div>
-                            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;">Temperature</p>
-                            <p id="liveTemperature" style="font-size: 1.4rem; font-weight: 700; color: var(--danger-color);">31.8°C</p>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label for="rpm">Motor RPM:</label>
+                    <input type="range" id="rpm" min="1000" max="3000" value="1500" step="100">
+                    <span id="rpmValue">1500 RPM</span>
                 </div>
-            </div>
 
-            <div class="data-management-section" style="margin-bottom: 25px;">
-                <div class="pump-section" style="padding: 20px;">
-                    <h3 style="margin-bottom: 15px; font-size: 1.2rem;"><i class="fas fa-history"></i> Session History & Data Management</h3>
-                    
-                    <div class="sessions-container" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
-                        <div id="savedSessionsList">
-                            <!-- Saved sessions will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <div class="session-actions" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn btn-warning btn-small" onclick="clearAllSavedSessions()" style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 8px 12px; font-size: 0.8rem; min-height: 35px;">
-                            <i class="fas fa-trash-alt"></i> Clear All
-                        </button>
-                        <button class="btn btn-info btn-small" onclick="exportAllSessionsAsZip()" style="background: linear-gradient(135deg, #0284c7, #0369a1); padding: 8px 12px; font-size: 0.8rem; min-height: 35px;">
-                            <i class="fas fa-file-archive"></i> Export All
-                        </button>
-                        <button class="btn btn-secondary btn-small" onclick="showDataStatistics()" style="background: linear-gradient(135deg, #6b7280, #4b5563); padding: 8px 12px; font-size: 0.8rem; min-height: 35px;">
-                            <i class="fas fa-chart-bar"></i> Statistics
-                        </button>
-                    </div>
+                <div class="input-group">
+                    <label for="duration">Time Duration (s):</label>
+                    <select id="duration">
+                        <option value="30">30 seconds</option>
+                        <option value="60">60 seconds</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="charts-section">
-                <div class="chart-container">
-                    <h3><i class="fas fa-chart-line"></i> Performance Curve</h3>
-                    <canvas id="performanceChart" width="400" height="200"></canvas>
+                <div class="input-group">
+                    <label for="volume">Volume (L):</label>
+                    <input type="number" id="volume" min="1" max="100" value="10">
                 </div>
-                <div class="chart-container">
-                    <h3><i class="fas fa-chart-area"></i> Power & Efficiency</h3>
-                    <canvas id="powerChart" width="400" height="200"></canvas>
+
+                <div class="input-group">
+                    <label for="head">Head (m):</label>
+                    <input type="range" id="head" min="5" max="20" value="10" step="0.5">
+                    <span id="headValue">10.0m</span>
+                </div>
+
+                <div class="button-group">
+                    <button id="startBtn" class="start-btn">
+                        <i class="fas fa-play"></i>
+                        Start
+                    </button>
+                    <button id="stopBtn" class="stop-btn" disabled>
+                        <i class="fas fa-stop"></i>
+                        Stop
+                    </button>
+                    <button id="resetBtn" class="reset-btn">
+                        <i class="fas fa-redo"></i>
+                        Reset
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="results-section">
-            <h2><i class="fas fa-table"></i> Simulation Results</h2>
-            <div class="table-container">
+            <h2>Results</h2>
             <table class="results-table">
                 <thead>
                     <tr>
-                            <th><i class="fas fa-plug"></i> Voltage (V)</th>
-                            <th><i class="fas fa-bolt"></i> Current (A)</th>
-                            <th><i class="fas fa-clock"></i> Time (s)</th>
-                            <th><i class="fas fa-tint"></i> Volume (L)</th>
-                            <th><i class="fas fa-faucet"></i> Discharge (L/s)</th>
-                            <th><i class="fas fa-arrow-up"></i> Head (m)</th>
-                            <th><i class="fas fa-power-off"></i> Input Power (W)</th>
-                            <th><i class="fas fa-cogs"></i> Output Power (W)</th>
-                            <th><i class="fas fa-percentage"></i> Efficiency (%)</th>
-                            <th><i class="fas fa-thermometer-half"></i> Temp (°C)</th>
+                        <th>Voltage (V)</th>
+                        <th>Current (A)</th>
+                        <th>Time (s)</th>
+                        <th>Volume (L)</th>
+                        <th>Discharge (L/s)</th>
+                        <th>Head (m)</th>
+                        <th>Input Power (W)</th>
+                        <th>Output Power (W)</th>
+                        <th>Efficiency (%)</th>
                     </tr>
                 </thead>
                 <tbody id="resultsBody">
-                    <!-- Results will be added here dynamically -->
                 </tbody>
             </table>
-            </div>
-
-            <!-- Export Data Section -->
-            <div class="export-section" style="background: var(--gradient-card); border-radius: 20px; padding: 25px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.8); margin-top: 30px;">
-                <h3 style="color: var(--primary-color); margin-bottom: 20px; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 10px; padding-bottom: 15px; border-bottom: 2px solid #f1f5f9;">
-                    <i class="fas fa-download"></i> Export Data
-                </h3>
-                
-                <div class="export-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <button class="btn btn-success tooltip" onclick="exportCurrentDataAsCSV()" data-tooltip="Export as CSV (Ctrl+E)" style="background: linear-gradient(135deg, #059669, #047857); min-height: 50px; font-size: 0.95rem;">
-                        <i class="fas fa-file-csv"></i> Export CSV
-                    </button>
-                    <button class="btn btn-info" onclick="exportCurrentDataAsJSON()" style="background: linear-gradient(135deg, #0284c7, #0369a1); min-height: 50px; font-size: 0.95rem;">
-                        <i class="fas fa-file-code"></i> Export JSON
-                    </button>
-                </div>
-                
-                <button class="btn" onclick="importDataFromFile()" style="width: 100%; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; min-height: 50px; font-size: 0.95rem;">
-                    <i class="fas fa-upload"></i> Import Data
+            <div class="export-section">
+                <button id="exportPdf" class="export-btn">
+                    <i class="fas fa-file-pdf"></i>
+                    Export PDF Report
                 </button>
+            </div>
+        </div>
+
+        <div class="graphs-section">
+            <div class="graph-row">
+                <div class="graph-container">
+                    <h3>Efficiency vs Head</h3>
+                    <canvas id="efficiencyHeadChart"></canvas>
+                </div>
+                <div class="graph-container">
+                    <h3>Output Power vs Time</h3>
+                    <canvas id="powerTimeChart"></canvas>
+                </div>
+            </div>
+            <div class="graph-row">
+                <div class="graph-container">
+                    <h3>Discharge vs RPM</h3>
+                    <canvas id="dischargeRpmChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
