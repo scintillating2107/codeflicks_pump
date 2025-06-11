@@ -1,5 +1,4 @@
 
-<h2>References</h2>
 <ol>
   <li>
     <a href="https://nptel.ac.in/courses/112/105/112105248/" target="_blank">
