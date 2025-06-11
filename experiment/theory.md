@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-  <h1>Theory: Centrifugal Pump</h1>
 
   <h2>1. Introduction</h2>
   <p>
