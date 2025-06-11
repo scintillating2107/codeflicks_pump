@@ -5,7 +5,6 @@
   
 </head>
 <body>
-  <h1>Procedure: Centrifugal Pump Experiment</h1>
 
   <h2>Step-by-Step Procedure</h2>
   <ol>
