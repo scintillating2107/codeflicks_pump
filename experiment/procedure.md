@@ -6,7 +6,6 @@
 </head>
 <body>
 
-  <h2>Step-by-Step Procedure</h2>
   <ol>
     <li><strong>Setup:</strong> Connect the pump to the pipes, valves, and power source.</li>
     <li><strong>Priming:</strong> Fill the pump casing with water to remove air.</li>
